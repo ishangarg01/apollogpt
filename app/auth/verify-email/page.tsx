@@ -1,69 +1,91 @@
-import { Suspense } from 'react'
-import { prisma } from '@/lib/prisma'
-import { redirect } from 'next/navigation'
+'use client'
 
-async function verifyEmail(token: string) {
-  try {
-    // Find the verification token
-    const verificationToken = await prisma.verificationToken.findUnique({
-      where: { token },
-    })
+import { useEffect, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Header } from '@/components/header'
+import { Footer } from '@/components/footer'
+import { Button } from '@/components/ui/button'
+import { Icons } from '@/components/icons'
 
-    if (!verificationToken) {
-      return { success: false, message: 'Email not yet verified. Please check your email for the verification link.' }
+export default function VerifyEmailPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
+  const [message, setMessage] = useState('')
+
+  useEffect(() => {
+    const verifyEmail = async () => {
+      try {
+        const token = searchParams.get('token')
+        const email = searchParams.get('email')
+
+        if (!token || !email) {
+          setStatus('error')
+          setMessage('Invalid verification link. Missing token or email.')
+          return
+        }
+
+        const response = await fetch(`/api/auth/verify-email?token=${token}&email=${email}`)
+        const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Verification failed')
+        }
+
+        setStatus('success')
+        setMessage(data.message || 'Email verified successfully!')
+      } catch (error: any) {
+        setStatus('error')
+        setMessage(error.message || 'An error occurred during verification.')
+      }
     }
 
-    if (verificationToken.expires < new Date()) {
-      return { success: false, message: 'Verification link has expired.' }
-    }
-
-    // Update user's emailVerified field
-    await prisma.user.update({
-      where: { email: verificationToken.identifier },
-      data: { emailVerified: new Date() },
-    })
-
-    // Delete the used token
-    await prisma.verificationToken.delete({
-      where: { token },
-    })
-
-    return { success: true, message: 'Email verified successfully! You can now log in.' }
-  } catch (error) {
-    console.error('Verification error:', error)
-    return { success: false, message: 'An error occurred during verification.' }
-  }
-}
-
-export default async function VerifyEmailPage({
-  searchParams,
-}: {
-  searchParams: { token?: string }
-}) {
-  if (!searchParams.token) {
-    redirect('/')
-  }
-
-  const result = await verifyEmail(searchParams.token)
+    verifyEmail()
+  }, [searchParams])
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-lg">
-        <div className="text-center">
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            {result.success ? 'Email Verified!' : 'Verification Failed'}
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">{result.message}</p>
+    <div className="flex min-h-screen flex-col">
+      <Header />
+      <main className="flex-1 flex items-center justify-center">
+        <div className="mx-auto w-full max-w-md p-6">
+          <div className="flex flex-col items-center space-y-4 text-center">
+            {status === 'loading' && (
+              <>
+                <Icons.spinner className="h-8 w-8 animate-spin" />
+                <h1 className="text-2xl font-semibold">Verifying your email...</h1>
+                <p className="text-muted-foreground">Please wait while we verify your email address.</p>
+              </>
+            )}
+
+            {status === 'success' && (
+              <>
+                <div className="rounded-full bg-green-100 p-3">
+                  <Icons.check className="h-6 w-6 text-green-600" />
+                </div>
+                <h1 className="text-2xl font-semibold">Email Verified!</h1>
+                <p className="text-muted-foreground">{message}</p>
+                <Button onClick={() => router.push('/auth/signin')}>
+                  Sign In
+                </Button>
+              </>
+            )}
+
+            {status === 'error' && (
+              <>
+                <div className="rounded-full bg-red-100 p-3">
+                  <Icons.x className="h-6 w-6 text-red-600" />
+                </div>
+                <h1 className="text-2xl font-semibold">Verification Failed</h1>
+                <p className="text-muted-foreground">{message}</p>
+                <Button onClick={() => router.push('/auth/signin')}>
+                  Back to Sign In
+                </Button>
+              </>
+            )}
+          </div>
         </div>
-        <div className="mt-8 text-center">
-          <a
-            href="/auth/signin"
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-          >
-            {result.success ? 'Go to Sign In' : 'Back to Home'}
-          </a>
-        </div>
-      </div>
+      </main>
+      <Footer />
     </div>
   )
 } 

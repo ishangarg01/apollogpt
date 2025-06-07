@@ -45,7 +45,7 @@ export const {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
     EmailProvider({
-      from: "ApolloGPT <onboarding@resend.dev>",
+      from: "ApolloGPT <noreply@ishan.click>",
       sendVerificationRequest,
     }),
     CredentialsProvider({
