@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     })
 
     // Create verification URL
-    const verificationUrl = `${process.env.NEXTAUTH_URL}/auth/verify-email?token=${token}`
+    const verificationUrl = `${process.env.NEXTAUTH_URL}/auth/verify-email?token=${token}&email=${encodeURIComponent(email)}`
 
     // Send verification email
     const { error } = await resend.emails.send({

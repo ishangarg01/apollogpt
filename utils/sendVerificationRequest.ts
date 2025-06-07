@@ -10,13 +10,20 @@ export async function sendVerificationRequest({
   provider: { server, from },
 }: SendVerificationRequestParams): Promise<void> {
   try {
+    // Ensure the email param is present in the verification URL
+    let verificationUrl = url;
+    const urlObj = new URL(url);
+    if (!urlObj.searchParams.get('email')) {
+      urlObj.searchParams.set('email', email);
+      verificationUrl = urlObj.toString();
+    }
     const { error } = await resend.emails.send({
       from: from,
       to: [email],
       subject: 'Verify your ApolloGPT account',
       react: EmailTemplate({
         firstName: email.split('@')[0], // Use part of email as first name
-        verificationUrl: url,
+        verificationUrl: verificationUrl,
       }),
     });
 
