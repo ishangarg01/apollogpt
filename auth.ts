@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import EmailProvider from "next-auth/providers/email";
-import { compare } from "bcrypt";
+import { compare } from "bcryptjs";
 import { sendVerificationRequest } from "./utils/sendVerificationRequest";
 import { JWT } from "next-auth/jwt";
 import { Session } from "next-auth";

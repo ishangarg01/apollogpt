@@ -26,7 +26,6 @@
     "@types/lodash": "^4.17.17",
     "@types/prettier": "^2.7.3",
     "ai": "^2.2.37",
-    "bcrypt": "^6.0.0",
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

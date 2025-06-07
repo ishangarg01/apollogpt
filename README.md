@@ -76,7 +76,7 @@ Defined in `prisma/schema.prisma`:
     - If the password is correct but the email is not verified, shows "Please verify your email before logging in." and offers a "Resend Verification Email" button.
   - **Backend**: `lib/auth.ts` (CredentialsProvider)
     - Checks if the user exists and has a password.
-    - Checks the password (using bcrypt).
+    - Checks the password (using bcryptjs).
     - If the password is correct but `emailVerified` is null, throws a verification error.
 - **Google OAuth**
   - **Frontend**: "Sign up with Google" and "Sign in with Google" buttons use `signIn('google', ...)`.
@@ -198,7 +198,7 @@ If you encounter any issues, check your terminal for errors and ensure your envi
 ---
 
 ## Security Notes
-- Passwords are hashed with bcrypt.
+- Passwords are hashed with bcryptjs.
 - Email verification is required before login.
 - All sensitive routes are protected by middleware and session checks.
 
