@@ -33,8 +33,10 @@ export function RegisterForm() {
         }),
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error("Registration failed")
+        throw new Error(data.error || "Registration failed")
       }
 
       toast({
@@ -45,10 +47,10 @@ export function RegisterForm() {
       setTimeout(() => {
         router.push("/auth/signin")
       }, 2000)
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Something went wrong. Please try again.",
+        description: error.message || "Something went wrong. Please try again.",
         variant: "destructive",
       })
     } finally {

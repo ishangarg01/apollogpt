@@ -9,6 +9,19 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 export async function POST(req: Request) {
   try {
     const { email, password, name } = await req.json()
+
+    // Check if user already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email }
+    })
+
+    if (existingUser) {
+      return NextResponse.json(
+        { error: "An account with this email already exists." },
+        { status: 400 }
+      )
+    }
+
     const hashed_password = await hash(password, 12)
 
     // Create user with emailVerified set to null
@@ -48,7 +61,7 @@ export async function POST(req: Request) {
 
     // Send verification email using Resend
     const { data, error } = await resend.emails.send({
-      from: 'ApolloGPT <onboarding@resend.dev>',
+      from: 'ApolloGPT <noreply@ishan.click>',
       to: [email],
       subject: 'Verify your ApolloGPT account',
       react: EmailTemplate({ 
@@ -70,11 +83,8 @@ export async function POST(req: Request) {
     })
   } catch (error: any) {
     console.error('Registration error:', error)
-    return new NextResponse(
-      JSON.stringify({
-        status: "error",
-        message: error.message,
-      }),
+    return NextResponse.json(
+      { error: error.message || "An error occurred during registration." },
       { status: 500 }
     )
   }

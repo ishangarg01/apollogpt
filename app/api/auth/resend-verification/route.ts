@@ -39,7 +39,7 @@ export async function POST(req: Request) {
 
     // Send verification email
     const { error } = await resend.emails.send({
-      from: 'ApolloGPT <onboarding@resend.dev>',
+      from: 'ApolloGPT <noreply@ishan.click>',
       to: [email],
       subject: 'Verify your ApolloGPT account',
       react: EmailTemplate({
