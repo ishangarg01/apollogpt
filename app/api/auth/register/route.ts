@@ -1,10 +1,7 @@
 import { NextResponse } from "next/server"
 import { hash } from "bcryptjs"
 import { prisma } from "@/lib/prisma"
-import { Resend } from "resend"
-import { EmailTemplate } from "@/components/EmailTemplate"
-
-const resend = new Resend(process.env.RESEND_API_KEY)
+import { sendVerificationEmail } from "@/lib/email"
 
 export async function POST(req: Request) {
   try {
@@ -59,18 +56,10 @@ export async function POST(req: Request) {
     // Create verification URL
     const verificationUrl = `${process.env.NEXTAUTH_URL}/auth/verify-email?token=${token}&email=${encodeURIComponent(email)}`
 
-    // Send verification email using Resend
-    const { data, error } = await resend.emails.send({
-      from: 'ApolloGPT <noreply@ishan.click>',
-      to: [email],
-      subject: 'Verify your ApolloGPT account',
-      react: EmailTemplate({ 
-        firstName: name.split(' ')[0], // Get first name
-        verificationUrl 
-      }),
-    })
-
-    if (error) {
+    // Send verification email
+    try {
+      await sendVerificationEmail(email, name, verificationUrl)
+    } catch (error) {
       console.error('Failed to send verification email:', error)
       // Don't fail registration if email fails, but log the error
     }

@@ -1,9 +1,21 @@
 import { useState } from "react"
-import { useChat } from "ai/react"
+import { useChat } from "@/hooks/use-chat"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Icons } from "@/components/icons"
 import { toast } from "@/components/ui/use-toast"
+
+interface MessagePart {
+  type: 'text'
+  text: string
+}
+
+interface ExtendedMessage {
+  id: string
+  role: 'user' | 'assistant'
+  content: string
+  parts?: MessagePart[]
+}
 
 export function Chat() {
   const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
@@ -16,6 +28,28 @@ export function Chat() {
       })
     },
   })
+
+  const renderMessageContent = (message: ExtendedMessage) => {
+    if (!message.parts) {
+      // Fallback to content if no parts
+      return <div className="whitespace-pre-wrap">{message.content}</div>
+    }
+
+    return (
+      <div className="space-y-4">
+        {message.parts.map((part, index) => {
+          if (part.type === 'text') {
+            return (
+              <div key={index} className="whitespace-pre-wrap">
+                {part.text}
+              </div>
+            )
+          }
+          return null
+        })}
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col h-full">
@@ -34,7 +68,7 @@ export function Chat() {
                   : "bg-muted"
               }`}
             >
-              {message.content}
+              {renderMessageContent(message as ExtendedMessage)}
             </div>
           </div>
         ))}

@@ -49,4 +49,4 @@ export const Icons = {
       ></path>
     </svg>
   ),
-} 
+} as const 

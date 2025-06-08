@@ -44,6 +44,7 @@ model User {
   password      String?
   accounts      Account[]
   sessions      Session[]
+  messages      Message[]
 }
 
 model VerificationToken {
@@ -52,4 +53,18 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  role      String   // "system" | "user" | "assistant" | "data"
+  content   String   @db.Text
+  parts     Json?    // Store message parts as JSON
+  code      String?  @db.Text
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
 } 

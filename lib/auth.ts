@@ -4,8 +4,6 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
-import EmailProvider from 'next-auth/providers/email'
-import { sendVerificationRequest } from '@/utils/sendVerificationRequest'
 
 declare module 'next-auth' {
   interface Session {
@@ -32,10 +30,6 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
-    EmailProvider({
-      from: "ApolloGPT <noreply@ishan.click>",
-      sendVerificationRequest,
     }),
     CredentialsProvider({
       name: 'credentials',
@@ -85,7 +79,6 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user, account, profile }) {
-      // Let the Prisma Adapter handle user/account creation for OAuth
       return true
     },
     async session({ session, token }) {

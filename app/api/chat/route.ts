@@ -1,12 +1,13 @@
-import { NextResponse } from "next/server"
-import { GoogleGenAI, Type } from "@google/genai"
+import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenerativeAIStream, StreamingTextResponse, Message as VercelAIMessage } from 'ai'
 
+// Initialize the Google Generative AI with your API key
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || '')
 
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
-})
+// Maximum duration for streaming responses (30 seconds)
+const maxDuration = 30
 
-const systemPrompt = `You are a helpful AI assistant that generates responsive, modern landing pages based on user input.
+const SYSTEM_PROMPT = `You are a helpful AI assistant that generates responsive, modern landing pages based on user input.
 When generating a landing page, follow these guidelines:
 1. Use modern HTML5 and CSS3 features
 2. Make the page fully responsive
@@ -17,89 +18,66 @@ When generating a landing page, follow these guidelines:
 7. Ensure accessibility
 8. Instead of images, use placeholder shapes with color and text
 
-IMPORTANT: Format your response as a JSON object with the following structure:
+IMPORTANT: You must always format your response as a JSON object with the following structure, even for conversational replies:
 {
-  "message": "Your explanation of the landing page design",
-  "hasCode": true,
-  "code": "<!DOCTYPE html>..."
+  "parts": [
+    {
+      "type": "text",
+      "text": "Your message here"
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "code": "Your HTML code here"
+    }
+  ]
 }
 
-{
-  "message": "Your explanation of the landing page design",
-  "hasCode": false,
-  "code": null
-}
+If you need to ask a clarifying question, provide it in the "text" field of a "text" part. Do not include a "code" part in that case.`
 
-Example response:
-{
-  "message": "Here's a modern landing page with a hero section, features, and contact form.",
-  "hasCode": true,
-  "code": "<!DOCTYPE html>..."
-}`
+export const runtime = 'edge'
 
 export async function POST(req: Request) {
   try {
-    const { messages } = await req.json()
-    const userMessage = messages[messages.length - 1].content
+    const { messages }: { messages: VercelAIMessage[] } = await req.json()
+    const lastUserMessage = messages[messages.length - 1]
+    
+    const chatHistory = messages.slice(0, -1).map(m => ({
+      role: m.role === 'user' ? 'user' : 'model',
+      parts: [{ text: m.content }],
+    }))
 
-    const model = "gemini-2.5-flash-preview-05-20"
-    const contents = [
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-2.0-flash',
+      generationConfig: {
+        responseMimeType: 'application/json'
+      }
+    })
+
+    const chat = model.startChat({
+      history: [
+        { role: 'user', parts: [{ text: SYSTEM_PROMPT }] },
+        { role: 'model', parts: [{ text: 'I understand. I will always respond with a JSON object following the specified structure.' }] },
+        ...chatHistory
+      ],
+    })
+
+    const streamResult = await chat.sendMessageStream(lastUserMessage.content)
+    
+    const stream = GoogleGenerativeAIStream(streamResult)
+    return new StreamingTextResponse(stream)
+
+  } catch (error) {
+    console.error('Error in chat route:', error)
+    return new Response(
+      JSON.stringify({
+        error: 'Failed to process chat request',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      }),
       {
-        role: "user",
-        parts: [
-          {
-            text: `${systemPrompt}\n\nUser request: ${userMessage}`,
-          },
-        ],
-      },
-    ]
-
-    const response = await ai.models.generateContent({
-      model,
-      contents,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            message: { type: Type.STRING },
-            hasCode: { type: Type.BOOLEAN },
-            code: { type: Type.STRING },
-          },
-          required: ["message", "hasCode", "code"],
-          propertyOrdering: ["message", "hasCode", "code"],
-        },
-      },
-    });
-
-    if (!response.candidates?.[0]?.content?.parts?.[0]?.text) {
-      throw new Error("No response from Gemini API")
-    }
-
-    const rawTextFromGemini = response.candidates[0].content.parts[0].text
-    // console.log("Raw API response text from Gemini:", rawTextFromGemini)
-
-    let parsedResponse
-    try {
-      const cleanedJsonString = rawTextFromGemini.replace(/^```json\s*|\s*```$/g, '')
-      console.log("Cleaned JSON string for parsing:", cleanedJsonString)
-
-      parsedResponse = JSON.parse(cleanedJsonString)
-
-      return NextResponse.json(parsedResponse)
-    } catch (parseError) {
-      console.error("Error parsing cleaned JSON response from model:", parseError)
-      return NextResponse.json({
-        message: `Failed to parse model's JSON output even after cleaning. Raw (unparsed) response: ${rawTextFromGemini}`,
-        hasCode: false,
-        code: null,
-      })
-    }
-  } catch (apiError) {
-    console.error("Error in chat API call:", apiError)
-    return NextResponse.json(
-      { error: "Failed to generate response due to internal server error." },
-      { status: 500 }
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }
     )
   }
 } 
