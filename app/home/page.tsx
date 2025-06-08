@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import Chatbar from "@/components/chat/chatbar"
 import { Rocket, Zap, Satellite, Code, Smartphone, Stars } from "lucide-react"
+import { SuggestedPromptsSection } from "@/components/home/SuggestedPromptsSection"
 
 export default async function HomePage() {
   const session = await getServerSession(authOptions)
@@ -40,6 +41,9 @@ export default async function HomePage() {
           {/* Command Interface */}
           <div className="mb-20">
             <Chatbar />
+            <div className="mt-8">
+              <SuggestedPromptsSection />
+            </div>
           </div>
 
           {/* Mission Capabilities */}

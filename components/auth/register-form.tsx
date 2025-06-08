@@ -96,6 +96,7 @@ export function RegisterForm() {
               id="password"
               name="password"
               type="password"
+              placeholder="Enter your password"
               autoComplete="new-password"
               disabled={isLoading}
               required

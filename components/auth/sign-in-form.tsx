@@ -148,6 +148,7 @@ export function SignInForm() {
               id="password"
               name="password"
               type="password"
+              placeholder="Enter your password"
               autoComplete="current-password"
               disabled={isLoading}
               required
