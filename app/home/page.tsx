@@ -24,7 +24,7 @@ export default async function HomePage() {
           {/* Hero Section */}
           <div className="mb-16">
             <div className="inline-block px-4 py-2 bg-slate-100 rounded-full mb-8">
-              <span className="text-slate-600 text-sm font-medium tracking-wide">Mission Control</span>
+              <span className="text-slate-600 text-sm font-medium tracking-wide">Mission Control!</span>
             </div>
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-slate-900 mb-8 leading-tight">
               Ready for{" "}
