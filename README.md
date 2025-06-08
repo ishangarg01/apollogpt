@@ -76,10 +76,10 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Extra Features
 This project enhances core functionality with:
-- Authentication: Email verification via Resend.
-- HTML/CSS Generation: Semantic, responsive HTML with theme and iconography support.
+- Authentication: Email verification via [Resend](https://resend.com/).
+- Home page for the initial prompt.
 - Chat Experience: Real-time data streaming (Vercel AI SDK), contextual memory, and quality guardrails.
-- User Interface: Dedicated home page, secure code preview sandbox, and download option.
+- User Interface: code preview sandbox, download option, code version toggle.
 
 ## Contributing
 
