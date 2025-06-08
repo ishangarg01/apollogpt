@@ -27,9 +27,18 @@ export const SUGGESTED_PROMPTS = [
 
 export function SuggestedPrompts({ onPromptSelect, disabled }: { onPromptSelect: (prompt: string) => void; disabled: boolean }) {
   return (
-    <div className="space-y-3">
+    // Added horizontal padding (px-4) to ensure spacing on left and right sides
+    <div className="space-y-3 px-4 sm:px-0"> {/* sm:px-0 removes extra padding on larger screens if desired by parent */}
       <p className="text-sm text-gray-600 font-medium">Try these examples:</p>
-      <div className="grid gap-2 sm:grid-cols-1 lg:grid-cols-3">
+      {/*
+        Updated grid classes for better responsiveness:
+        - `grid-cols-1`: Default to 1 column on extra small screens.
+        - `sm:grid-cols-2`: Switch to 2 columns from the 'sm' breakpoint (e.g., wider phones, small tablets).
+        - `lg:grid-cols-3`: Switch to 3 columns from the 'lg' breakpoint (e.g., desktops).
+        This ensures cards adapt their width more effectively across different device sizes,
+        helping to prevent horizontal overflow and unused whitespace.
+      */}
+      <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {SUGGESTED_PROMPTS.map((prompt, index) => {
           const IconComponent = prompt.icon
           return (
@@ -38,13 +47,14 @@ export function SuggestedPrompts({ onPromptSelect, disabled }: { onPromptSelect:
               variant="outline"
               onClick={() => onPromptSelect(prompt.prompt)}
               disabled={disabled}
-              className="h-auto p-4 text-left justify-start hover:bg-violet-50 hover:border-violet-200 transition-colors group"
+              // `w-full` ensures the button takes the full width of its grid column
+              className="h-auto p-4 text-left justify-start hover:bg-violet-50 hover:border-violet-200 transition-colors group w-full"
             >
               <div className="flex items-start gap-3 w-full">
                 <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center group-hover:bg-violet-200 transition-colors">
                   <IconComponent className="h-4 w-4 text-violet-600" />
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0"> {/* `min-w-0` helps content shrink within flex item */}
                   <div className="font-medium text-sm text-gray-900 mb-1">{prompt.title}</div>
                   <div className="text-xs text-gray-500 line-clamp-2">{prompt.description}</div>
                 </div>
@@ -55,4 +65,4 @@ export function SuggestedPrompts({ onPromptSelect, disabled }: { onPromptSelect:
       </div>
     </div>
   )
-} 
+}

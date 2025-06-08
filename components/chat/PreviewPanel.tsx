@@ -65,7 +65,6 @@ export const PreviewPanel = React.memo(function PreviewPanel({
 
   return (
     <Card className="col-span-6 flex flex-col flex-1 min-h-0 rounded-2xl border-0 shadow-lg bg-white overflow-hidden">
-      <CardHeader className="flex-none pb-3" />
       <CardContent className="flex-1 min-h-0 flex flex-col overflow-hidden p-0">
         {codeToDisplay && (
           <div className="flex items-center justify-between px-6 pt-6 pb-2">

@@ -62,7 +62,7 @@ export function RegisterForm() {
     <div className="grid gap-6">
       <form onSubmit={onSubmit}>
         <div className="grid gap-4">
-          <div className="grid gap-1">
+          <div className="grid gap-1 px-4 sm:px-0">
             <Label htmlFor="name">Name</Label>
             <Input
               id="name"
@@ -76,7 +76,7 @@ export function RegisterForm() {
               required
             />
           </div>
-          <div className="grid gap-1">
+         <div className="grid gap-1 px-4 sm:px-0">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
@@ -90,7 +90,7 @@ export function RegisterForm() {
               required
             />
           </div>
-          <div className="grid gap-1">
+          <div className="grid gap-1 px-4 sm:px-0">
             <Label htmlFor="password">Password</Label>
             <Input
               id="password"
@@ -101,14 +101,18 @@ export function RegisterForm() {
               disabled={isLoading}
               required
             />
+
           </div>
-          <Button disabled={isLoading}>
+          <div className="px-4 sm:px-0 flex justify-center">
+          <Button disabled={isLoading} className="w-full">
             {isLoading && (
               <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
             )}
             Create Account
           </Button>
+          </div>
         </div>
+
       </form>
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
@@ -120,11 +124,13 @@ export function RegisterForm() {
           </span>
         </div>
       </div>
+      <div className="px-4 sm:px-0 flex justify-center">
       <Button
         variant="outline"
         type="button"
         disabled={isLoading}
         onClick={() => signIn("google", { callbackUrl: "/home" })}
+        className="w-full"
       >
         {isLoading ? (
           <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
@@ -133,6 +139,7 @@ export function RegisterForm() {
         )}
         Sign up with Google
       </Button>
+      </div>
     </div>
   )
 } 
