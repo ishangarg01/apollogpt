@@ -73,6 +73,14 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
+
+## Extra Features
+This project enhances core functionality with:
+- Authentication: Email verification via Resend.
+- HTML/CSS Generation: Semantic, responsive HTML with theme and iconography support.
+- Chat Experience: Real-time data streaming (Vercel AI SDK), contextual memory, and quality guardrails.
+- User Interface: Dedicated home page, secure code preview sandbox, and download option.
+
 ## Contributing
 
 Pull requests and issues are welcome! Please open an issue if you find a bug or have a feature request.
