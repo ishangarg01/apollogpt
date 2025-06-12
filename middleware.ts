@@ -5,14 +5,15 @@ import { NextRequestWithAuth } from "next-auth/middleware"
 export default async function middleware(request: NextRequestWithAuth) {
   const token = await getToken({ req: request })
   const isAuthenticated = !!token
+  // console.log("isAuthenticated : ", isAuthenticated)
 
   // Define public paths that don't require authentication
-  const publicPaths = ['/auth/signin', '/auth/register', '/api/auth', '/']
-  const isPublicPath = publicPaths.some(path => request.nextUrl.pathname === path || request.nextUrl.pathname.startsWith(path))
+  const publicPaths = ['/auth/signin', '/auth/register', '/api/auth']
+  const isPublicPath = publicPaths.some(path => request.nextUrl.pathname === path || request.nextUrl.pathname.startsWith(path) || request.nextUrl.pathname === '/')
 
   // If the user is not authenticated and trying to access a protected route
   if (!isAuthenticated && !isPublicPath) {
-    const signInUrl = new URL('/auth/signin', request.url)
+    const signInUrl = new URL('/', request.url)
     signInUrl.searchParams.set('callbackUrl', request.url)
     return NextResponse.redirect(signInUrl)
   }
@@ -39,3 +40,5 @@ export const config = {
     '/((?!_next/static|_next/image|favicon.ico|public/|api/auth|auth/|$).*)',
   ],
 } 
+
+

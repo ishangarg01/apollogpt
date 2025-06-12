@@ -11,4 +11,4 @@ export default function ChatPageClient() {
       <ChatInterface initialPrompt={initialPrompt} />
     </Suspense>
   )
-} 
+}
